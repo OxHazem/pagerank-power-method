@@ -75,7 +75,8 @@ def plot_residuals(
     iterations = list(range(1, len(history) + 1))
     plt.figure()
     plt.plot(iterations, history, marker='o')
-    plt.yscale('log')
+    if any(r > 0 for r in history):
+            plt.yscale('log')
     plt.xlabel('Iteration')
     plt.ylabel('L1 Residual')
     plt.title(title)

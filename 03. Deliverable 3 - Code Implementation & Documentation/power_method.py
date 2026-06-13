@@ -21,11 +21,12 @@ Behavior:
     - Returns final rank, residual history, iterations count, and runtime.
 '''
 
+from networkx import convert_matrix
 from typing import Tuple, List
 import numpy as np
 import time
 from scipy.sparse import csr_matrix
-from utils import normalize_vector, residual
+from utils import normalize_vector, compute_residual
 
 
 def compute_pagerank(
@@ -77,7 +78,7 @@ def compute_pagerank(
         r_new = normalize_vector(r_new)
 
         # Compute L1 residual
-        res = residual(r_new, r)
+        res = compute_residual(r_new, r)
         residuals.append(res)
 
         # Check convergence

@@ -14,7 +14,7 @@ import os
 from graph_loader import load_edge_list, load_adjacency_list
 from matrix_builder import build_matrix
 from power_method import compute_pagerank
-from utils import plot_convergence
+from utils import plot_residuals
 
 
 def main():
@@ -60,7 +60,7 @@ def main():
     P, v = build_matrix(edges, alpha=args.alpha)
 
     # Execute Power Method
-    ranks, residuals = compute_pagerank(P, v, tol=args.tol, max_iter=args.max_iter)
+    ranks, residuals,iterations, runtime = compute_pagerank(P, v, tol=args.tol, max_iter=args.max_iter)
 
     # Output top 10 nodes by PageRank
     ranked_indices = ranks.argsort()[::-1]
@@ -69,7 +69,7 @@ def main():
         print(f"Node {idx}: {ranks[idx]:.6f}")
 
     # Plot convergence history
-    plot_convergence(residuals)
+    plot_residuals(residuals)
 
 
 if __name__ == '__main__':
