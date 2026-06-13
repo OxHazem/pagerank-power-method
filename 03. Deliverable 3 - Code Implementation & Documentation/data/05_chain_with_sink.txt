@@ -1,0 +1,12 @@
+# Chain with a Sink (6 nodes)
+# A linear chain: 0 -> 1 -> 2 -> 3 -> 4 -> 5
+# Node 5 is a "dangling node" (sink) — it has no outgoing links.
+# This tests the dangling-node handling in matrix_builder.py:
+#   dangling nodes distribute their rank uniformly to all nodes.
+# Expected: Node 5 gets the most rank (all flow accumulates at the end).
+#           Without teleportation, rank would get stuck at node 5.
+0 1
+1 2
+2 3
+3 4
+4 5

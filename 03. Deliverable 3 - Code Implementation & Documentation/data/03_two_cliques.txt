@@ -1,0 +1,22 @@
+# Two Cliques Connected by a Bridge (6 nodes)
+# Clique A: nodes 0, 1, 2 (fully connected)
+# Clique B: nodes 3, 4, 5 (fully connected)
+# Bridge: node 2 -> node 3 (the only connection between the two groups)
+# Expected: Node 3 is the "gateway" into Clique B, so it should rank highest.
+#           Nodes in Clique B should rank slightly higher than Clique A overall.
+# Clique A edges
+0 1
+0 2
+1 0
+1 2
+2 0
+2 1
+# Bridge edge
+2 3
+# Clique B edges
+3 4
+3 5
+4 3
+4 5
+5 3
+5 4

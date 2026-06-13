@@ -1,0 +1,26 @@
+# Mini Wikipedia-style Web Graph (7 nodes)
+# Simulates a small web where pages link to each other like Wikipedia articles.
+#
+# Node 0 = "Main Page"      (links to many topics)
+# Node 1 = "Mathematics"    (popular, receives many links)
+# Node 2 = "Physics"        (links to Math)
+# Node 3 = "Chemistry"      (links to Physics and Math)
+# Node 4 = "Biology"        (links to Chemistry)
+# Node 5 = "Computer Sci"   (links to Math)
+# Node 6 = "History"        (isolated topic, links only to Main Page)
+#
+# Expected: Node 1 (Mathematics) should rank highest — many pages link to it.
+#           Node 0 (Main Page) should also rank high.
+0 1
+0 2
+0 3
+0 5
+1 2
+2 1
+2 3
+3 1
+3 2
+4 3
+5 1
+5 0
+6 0

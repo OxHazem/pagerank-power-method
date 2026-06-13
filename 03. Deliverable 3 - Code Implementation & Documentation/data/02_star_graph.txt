@@ -1,0 +1,9 @@
+# Star Graph (5 nodes) - Hub and Spoke
+# Node 0 is the "hub" that links to all others.
+# No one links back to the hub => hub is a "source", spokes are "sinks" (dangling nodes).
+# Expected: Spokes (1-4) get higher rank than hub because they receive links.
+#           Hub gets rank mainly from teleportation since no one points to it.
+0 1
+0 2
+0 3
+0 4
