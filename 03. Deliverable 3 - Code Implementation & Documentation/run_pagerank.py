@@ -42,6 +42,10 @@ def main():
         '--max_iter', '-m', type=int, default=100,
         help='Maximum number of iterations (default: 100)'
     )
+    parser.add_argument(
+        '--personalize', '-p', type=int, default=None,
+        help='Node id for personalize teleportation vector (default: None, uniform teleportation)'
+    )
     args = parser.parse_args()
 
     input_file = args.input_path
@@ -57,7 +61,7 @@ def main():
         edges = [(u, v) for u, nbrs in adj.items() for v in nbrs]
 
     # Build transition matrix and teleport vector
-    P, v = build_matrix(edges, alpha=args.alpha)
+    P, v = build_matrix(edges, alpha=args.alpha, personalization=args.personalize)
 
     # Execute Power Method
     ranks, residuals,iterations, runtime = compute_pagerank(P, v, tol=args.tol, max_iter=args.max_iter)

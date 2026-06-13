@@ -28,7 +28,8 @@ from scipy.sparse import csr_matrix
 
 def build_matrix(
     edges: List[Tuple[int, int]],
-    alpha: float = 0.85
+    alpha: float = 0.85,
+    personalization: int = None
 ) -> Tuple[csr_matrix, np.ndarray]:
     """
     Build the PageRank transition operator components:
@@ -79,6 +80,14 @@ def build_matrix(
             P[:, j] = np.ones(n) / n
 
     # Teleportation vector
-    v = np.ones(n, dtype=float) / n
+    if personalization is None: 
+        v = np.ones(n, dtype=float) / n
+    else: 
+        if personalization < 0 or personalization >= n:
+            raise ValueError(f"Personalization node {personalization} is out of bounds for n={n}")
+        v = np.zeros(n, dtype=float)
+        v[personalization] = 1.0
+        v= v / v.sum()
+        
 
     return P, v
