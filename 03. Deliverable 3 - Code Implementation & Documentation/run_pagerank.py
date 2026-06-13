@@ -14,7 +14,7 @@ import os
 from graph_loader import load_edge_list, load_adjacency_list
 from matrix_builder import build_matrix
 from power_method import compute_pagerank
-from utils import plot_residuals
+from utils import plot_residuals , save_pagerank_results
 
 
 def main():
@@ -46,7 +46,20 @@ def main():
         '--personalize', '-p', type=int, default=None,
         help='Node id for personalize teleportation vector (default: None, uniform teleportation)'
     )
+    parser.add_argument(
+        '--output_format', '-of', choices=['csv', 'json'], default='csv',
+        help='Format to save PageRank results (default: csv)'
+    )
+    parser.add_argument(
+        '--output_path', '-op', type=str, default=None,
+        help='Optional path to save PageRank results (CSV or JSON format inferred from extension)'
+    )
+    
+
     args = parser.parse_args()
+
+    if args.output_path is None:
+        args.output_path = f"results/pagerank_results.{args.output_format}"
 
     input_file = args.input_path
 
@@ -68,11 +81,13 @@ def main():
 
     # Output top 10 nodes by PageRank
     ranked_indices = ranks.argsort()[::-1]
+    dict_ranks = {idx: ranks[idx] for idx in ranked_indices}
     print("Top 10 nodes by PageRank:")
     for idx in ranked_indices[:10]:
         print(f"Node {idx}: {ranks[idx]:.6f}")
 
     # Plot convergence history
+    save_pagerank_results(dict_ranks, args.output_path, format=args.output_format)
     plot_residuals(residuals)
 
 
