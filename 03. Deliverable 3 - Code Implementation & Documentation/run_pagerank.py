@@ -11,7 +11,7 @@ Usage:
 import argparse
 import os
 
-from graph_loader import load_edge_list, load_adjacency_list
+from graph_loader import load_edge_list, load_adjacency_list , graph_summary
 from matrix_builder import build_matrix
 from power_method import compute_pagerank
 from utils import plot_residuals , save_pagerank_results
@@ -72,6 +72,9 @@ def main():
     else:
         adj = load_adjacency_list(input_file)
         edges = [(u, v) for u, nbrs in adj.items() for v in nbrs]
+
+
+    graph_summary(edges)
 
     # Build transition matrix and teleport vector
     P, v = build_matrix(edges, alpha=args.alpha, personalization=args.personalize)
