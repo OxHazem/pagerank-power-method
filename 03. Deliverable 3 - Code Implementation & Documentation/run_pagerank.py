@@ -10,7 +10,8 @@ Usage:
 """
 import argparse
 import os
-
+import networkx as nx
+import numpy as np
 from graph_loader import load_edge_list, load_adjacency_list , graph_summary
 from matrix_builder import build_matrix
 from power_method import compute_pagerank
@@ -54,6 +55,11 @@ def main():
         '--output_path', '-op', type=str, default=None,
         help='Optional path to save PageRank results (CSV or JSON format inferred from extension)'
     )
+    parser.add_argument(
+        '--validate', '-v', action='store_true',
+        help='Compare custom PageRank with NetworkX nx.pagerank()'
+    )
+
     
 
     args = parser.parse_args()
@@ -82,11 +88,52 @@ def main():
     # Execute Power Method
     ranks, residuals,iterations, runtime = compute_pagerank(P, v, tol=args.tol, max_iter=args.max_iter)
 
+    if args.validate:
+        n = len(ranks)
+        graph = nx.DiGraph()
+        graph.add_nodes_from(range(n))
+        graph.add_edges_from(edges)
+
+        personalization = None
+        if args.personalize is not None:
+            personalization = {i: 0.0 for i in range(n)}
+            personalization[args.personalize] = 1.0
+
+        dangling = {i: 1.0 / n for i in range(n)}
+        nx_scores = nx.pagerank(
+            graph,
+            alpha=args.alpha,
+            personalization=personalization,
+            dangling=dangling,
+            tol=args.tol,
+            max_iter=args.max_iter
+        )
+
+        nx_ranks = np.array([nx_scores[i] for i in range(n)], dtype=float)
+        abs_diff = np.abs(ranks - nx_ranks)
+        max_diff = float(abs_diff.max())
+        mean_diff = float(abs_diff.mean())
+
+        print("\nValidation Against NetworkX")
+        print("--------------------------")
+        print(f"{'Node':>6} {'Custom':>14} {'NetworkX':>14} {'AbsDiff':>14}")
+        for i in range(n):
+            print(f"{i:>6} {ranks[i]:>14.10f} {nx_ranks[i]:>14.10f} {abs_diff[i]:>14.10e}")
+
+        print("\nValidation Summary")
+        print("------------------")
+        print(f"Max absolute difference: {max_diff:.10e}")
+        print(f"Mean absolute difference: {mean_diff:.10e}")
+        if max_diff < 1e-8:
+            print("Validation: PASSED (custom implementation matches NetworkX)")
+        else:
+            print("Validation: WARNING (differences detected vs NetworkX)")
+
     # Output top 10 nodes by PageRank
     ranked_indices = ranks.argsort()[::-1]
     dict_ranks = {idx: ranks[idx] for idx in ranked_indices}
-    print("Top 10 nodes by PageRank:")
-    for idx in ranked_indices[:10]:
+    print("Top nodes by PageRank:")
+    for idx in ranked_indices:
         print(f"Node {idx}: {ranks[idx]:.6f}")
 
     # Plot convergence history
