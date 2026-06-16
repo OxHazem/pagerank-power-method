@@ -44,7 +44,8 @@ def graph_summary(edges: List[Tuple[int, int]])-> None :
     dangling_nodes = 0 
     isolated_nodes = 0 
 
-    for u,v in edges :
+    for edge in edges:
+        u, v = edge[0], edge[1]
 
 
         nodes.add(u)
@@ -72,7 +73,7 @@ def graph_summary(edges: List[Tuple[int, int]])-> None :
     else : None
 
     graph = nx.Graph()
-    graph.add_edges_from(edges)
+    graph.add_edges_from((edge[0], edge[1]) for edge in edges)
 
     connected_components = nx.number_connected_components(graph)
 
@@ -105,16 +106,16 @@ def graph_summary(edges: List[Tuple[int, int]])-> None :
 def load_edge_list(
     path: str,
     directed: bool = True
-) -> List[Tuple[int, int]]:
+) -> List[Tuple[int, int, float]]:
     """
-    Load edges from a text file where each non-comment line has two ints: u v.
+    Load edges from a text file where each non-comment line has two or three values: u v [weight].
 
     Args:
         path: File path to read.
         directed: If True, returns edges for a DiGraph; else for an undirected Graph.
 
     Returns:
-        List of (source, target) integer tuples.
+        List of (source, target, weight) tuples. If a line does not provide a weight, 1.0 is used.
 
     Raises:
         FileNotFoundError: If the file is missing.
@@ -123,20 +124,28 @@ def load_edge_list(
     if not os.path.isfile(path):
         raise FileNotFoundError(f"Edge list file not found: {path}")
 
-    edges: List[Tuple[int, int]] = []
+    edges: List[Tuple[int, int, float]] = []
     with open(path, 'r') as f:
         for lineno, line in enumerate(f, start=1):
             stripped = line.strip()
             if not stripped or stripped.startswith('#'):
                 continue
             parts = stripped.split()
-            if len(parts) != 2:
+            if len(parts) not in (2, 3):
                 raise ValueError(f"Invalid format on line {lineno}: '{stripped}'")
             try:
-                u, v = map(int, parts)
+                u = int(parts[0])
+                v = int(parts[1])
             except ValueError:
                 raise ValueError(f"Non-integer node ID on line {lineno}: '{stripped}'")
-            edges.append((u, v))
+            if len(parts) == 3:
+                try:
+                    weight = float(parts[2])
+                except ValueError:
+                    raise ValueError(f"Non-numeric edge weight on line {lineno}: '{stripped}'")
+            else:
+                weight = 1.0
+            edges.append((u, v, weight))
     return edges
 
 

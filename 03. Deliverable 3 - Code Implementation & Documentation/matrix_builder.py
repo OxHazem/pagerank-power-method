@@ -27,7 +27,7 @@ from scipy.sparse import csr_matrix
 
 
 def build_matrix(
-    edges: List[Tuple[int, int]],
+    edges: List[Tuple[int, int, float]],
     alpha: float = 0.85,
     personalization: int = None
 ) -> Tuple[csr_matrix, np.ndarray]:
@@ -37,7 +37,7 @@ def build_matrix(
         v: uniform teleportation vector
 
     Args:
-        edges: List of directed edges (src, dst), zero-indexed.
+        edges: List of directed edges (src, dst, weight), zero-indexed.
         alpha: Damping factor in [0,1]; only validated here.
 
     Returns:
@@ -52,23 +52,23 @@ def build_matrix(
         raise ValueError(f"Damping factor alpha must be in [0,1], got {alpha}")
 
     # Infer node set
-    nodes = {u for u, _ in edges} | {v for _, v in edges}
+    nodes = {u for u, _, _ in edges} | {v for _, v, _ in edges}
     if not nodes:
         raise ValueError("Edge list is empty; cannot infer number of nodes.")
     n = max(nodes) + 1
 
     # Compute out-degrees
     out_degree = np.zeros(n, dtype=float)
-    for src, _ in edges:
-        out_degree[src] += 1
+    for src, _, weight in edges:
+        out_degree[src] += weight
 
     # Assemble sparse P^T
     rows, cols, data = [], [], []
-    for src, dst in edges:
+    for src, dst, weight in edges:
         if out_degree[src] > 0:
             rows.append(dst)
             cols.append(src)
-            data.append(1.0 / out_degree[src])
+            data.append(weight / out_degree[src])
 
     P = csr_matrix((data, (rows, cols)), shape=(n, n))
 

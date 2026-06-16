@@ -59,6 +59,10 @@ def main():
         '--validate', '-v', action='store_true',
         help='Compare custom PageRank with NetworkX nx.pagerank()'
     )
+    parser.add_argument(
+        '--weighted', '-w', action='store_true',
+        help='Interpret edge-list weights in the third column (default: unweighted)'
+    )
 
     
 
@@ -74,10 +78,15 @@ def main():
 
     # Load edges based on chosen format
     if args.format == 'edgelist':
-        edges = load_edge_list(input_file)
+        loaded_edges = load_edge_list(input_file)
     else:
         adj = load_adjacency_list(input_file)
-        edges = [(u, v) for u, nbrs in adj.items() for v in nbrs]
+        loaded_edges = [(u, v, 1.0) for u, nbrs in adj.items() for v in nbrs]
+
+    if args.weighted:
+        edges = loaded_edges
+    else:
+        edges = [(u, v, 1.0) for u, v, *_ in loaded_edges]
 
 
     graph_summary(edges)
@@ -92,7 +101,10 @@ def main():
         n = len(ranks)
         graph = nx.DiGraph()
         graph.add_nodes_from(range(n))
-        graph.add_edges_from(edges)
+        if args.weighted:
+            graph.add_weighted_edges_from((u, v, w) for u, v, w in edges)
+        else:
+            graph.add_edges_from((u, v) for u, v, _ in edges)
 
         personalization = None
         if args.personalize is not None:
@@ -105,6 +117,7 @@ def main():
             alpha=args.alpha,
             personalization=personalization,
             dangling=dangling,
+            weight='weight' if args.weighted else None,
             tol=args.tol,
             max_iter=args.max_iter
         )
