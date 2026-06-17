@@ -24,6 +24,7 @@ Usage:
 from typing import List, Tuple
 import numpy as np
 from scipy.sparse import csr_matrix
+import networkx as nx
 
 
 def build_matrix(
@@ -91,3 +92,48 @@ def build_matrix(
         
 
     return P, v
+
+
+def build_transition_matrix(graph: nx.Graph, alpha: float = 0.85) -> csr_matrix:
+    """
+    Backward-compatible wrapper that builds the transition matrix from a NetworkX graph.
+
+    Args:
+        graph: Directed or undirected NetworkX graph.
+        alpha: Damping factor passed through to build_matrix.
+
+    Returns:
+        Sparse transition matrix P.
+    """
+    edges = []
+    for src, dst in graph.edges():
+        weight = graph[src][dst].get("weight", 1.0)
+        edges.append((src, dst, float(weight)))
+
+    P, _ = build_matrix(edges, alpha=alpha)
+    return P
+
+
+def build_teleportation_vector(size: int, personalization: int = None) -> np.ndarray:
+    """
+    Backward-compatible wrapper that returns a teleportation vector.
+
+    Args:
+        size: Number of nodes.
+        personalization: Optional personalized teleportation node.
+
+    Returns:
+        Teleportation vector of length size.
+    """
+    if size <= 0:
+        raise ValueError(f"Graph size must be positive, got {size}")
+
+    if personalization is None:
+        return np.ones(size, dtype=float) / size
+
+    if personalization < 0 or personalization >= size:
+        raise ValueError(f"Personalization node {personalization} is out of bounds for n={size}")
+
+    v = np.zeros(size, dtype=float)
+    v[personalization] = 1.0
+    return v

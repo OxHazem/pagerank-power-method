@@ -1,8 +1,14 @@
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "03. Deliverable 3 - Code Implementation & Documentation"))
+
 import networkx as nx
 from matrix_builder import build_transition_matrix, build_teleportation_vector
 from power_method import pagerank_power_method
 from utils import plot_residuals
 import os
+from pathlib import Path
 
 toy_graphs = {
     "Cycle-4": nx.DiGraph([(0,1),(1,2),(2,3),(3,0)]),
@@ -12,11 +18,12 @@ toy_graphs = {
     "Bipartite-3x3": nx.DiGraph([(i, j+3) for i in range(3) for j in range(3)])
 }
 
-os.makedirs("deliverable_4/plots", exist_ok=True)
+plots_dir = Path(__file__).parent / "plots"
+plots_dir.mkdir(parents=True, exist_ok=True)
 
 for name, G in toy_graphs.items():
     P = build_transition_matrix(G)
     v = build_teleportation_vector(len(G))
     r, residuals, iters, runtime = pagerank_power_method(P, v)
     print(f"{name}: {iters} iterations, Final residual={residuals[-1]:.2e}")
-    plot_residuals(residuals, f"{name} Residuals", f"deliverable_4/plots/{name}_residuals.png")
+    plot_residuals(residuals, f"{name} Residuals", str(plots_dir / f"{name}_residuals.png"))

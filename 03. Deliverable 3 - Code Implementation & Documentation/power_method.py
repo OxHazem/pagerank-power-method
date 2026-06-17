@@ -90,3 +90,10 @@ def compute_pagerank(
 
     runtime = time.time() - start_time
     return r, residuals, k, runtime
+
+
+def pagerank_power_method(P: csr_matrix, v: np.ndarray, alpha: float = 0.85, tol: float = 1e-6, max_iter: int = 100):
+    """
+    Backward-compatible wrapper for older experiment scripts.
+    """
+    return compute_pagerank(P, v, alpha=alpha, tol=tol, max_iter=max_iter)

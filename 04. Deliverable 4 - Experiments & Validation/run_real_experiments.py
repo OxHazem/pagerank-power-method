@@ -1,3 +1,7 @@
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "03. Deliverable 3 - Code Implementation & Documentation"))
 import networkx as nx
 from matrix_builder import build_transition_matrix, build_teleportation_vector
 from power_method import pagerank_power_method
@@ -8,5 +12,8 @@ P = build_transition_matrix(G)
 v = build_teleportation_vector(len(G))
 r, residuals, iters, runtime = pagerank_power_method(P, v)
 
+plots_dir = Path(__file__).parent / "plots"
+plots_dir.mkdir(parents=True, exist_ok=True)
+
 print(f"Karate Club: {iters} iterations, runtime={runtime:.2f}s, Final residual={residuals[-1]:.2e}")
-plot_residuals(residuals, "Karate Club Residuals", "deliverable_4/plots/karate_residuals.png")
+plot_residuals(residuals, "Karate Club Residuals", str(plots_dir / "karate_residuals.png"))
